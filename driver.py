@@ -26,15 +26,6 @@ class Driver:
         self.scrollbar = Scrollbar(self.root)
         self.list = Listbox(self.root, yscrollcommand=self.scrollbar.set)
 
-    def search():
-        return 0
-
-    def insertBook():
-        return 0
-
-    def insertUser():
-        return 0
-
     def searchUserButtonHandler(self):
 
         self.scrollbar.destroy()
@@ -105,6 +96,7 @@ class Driver:
                             self.genre.get(),
                             self.publisherName.get(),
                             self.publisherCity.get(),
+                            float(self.mark.get()),
                             self.numberOfCopies.get())
 
         Label(self.canvas, text="Książka została dodana do bazy").pack()
@@ -278,6 +270,11 @@ class Driver:
 
             self.publisherCity = Entry(self.root)
             self.publisherCity.pack()
+
+            Label(self.root, text="Ocena").pack()
+
+            self.mark = Entry(self.root)
+            self.mark.pack()
 
             Label(self.root, text="Liczba kopii").pack()
 

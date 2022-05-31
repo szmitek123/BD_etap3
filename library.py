@@ -111,11 +111,12 @@ class Library:
                         copies.append(Copy(dateReturn, dateRent, isRented, idCopy, title, author[0][0]))
                     author = author[0][0]
                     allResults.append(Book(title, genre, str(year), mark, publisher, city, author, copies))
+        allResults.sort(key=lambda x: x.mark, reverse=True)
         return allResults
 
     def selectUser(self, userdata):
         allResults = []
-        query = f"SELECT * FROM Reader WHERE surname='{str(userdata)}';"
+        query = f"SELECT * FROM Reader WHERE surname='{str(userdata)}' OR email='{str(userdata)}';"
         foundUsers = readData(self.connection, query)
         if len(foundUsers) != 0:
             for user in foundUsers:
@@ -153,7 +154,8 @@ class Library:
 
         return allResults
 
-    def insertBook(self, authorName, authorOrigin, title, year, genre, publisherName, publisherCity, numberOfCopies):
+    def insertBook(self, authorName, authorOrigin, title, year, genre, publisherName, publisherCity, mark,
+                   numberOfCopies):
         query = f"""SELECT surname FROM Author WHERE surname='{authorName}';"""
         foundAuthor = readData(self.connection, query)
         if len(foundAuthor) == 0:
@@ -174,7 +176,7 @@ class Library:
             query = f"""SELECT idAuthor FROM Author WHERE surname='{authorName}' AND origin='{authorOrigin}';"""
             idAuthor = readData(self.connection, query)
             query = f"""INSERT INTO Book (title, genre, yearPublish, mark, PublisherHouse_idPublisher, Author_idAuthor) 
-                  VALUES ('{title}', '{genre}', '{year}', 0, '{idPublisher[0][0]}', '{idAuthor[0][0]}');"""
+                  VALUES ('{title}', '{genre}', '{year}', {str(mark)}, '{idPublisher[0][0]}', '{idAuthor[0][0]}');"""
             executeQuery(self.connection, query)
             query = f"""SELECT idBook FROM Book WHERE title='{title}' AND yearPublish={year} AND genre='{genre}';"""
             idBook = readData(self.connection, query)
@@ -224,7 +226,7 @@ class Library:
         else:
             return False
 
-    def returnBook(self,title, author, email):
+    def returnBook(self, title, author, email):
         query = f"""SELECT idAuthor FROM Author WHERE surname='{author}';"""
         idAuthor = readData(self.connection, query)
         idAuthor = idAuthor[0][0]
@@ -239,8 +241,8 @@ class Library:
             idReader = idReader[0][0]
             idCopy = nonavailableCopies[0][0]
             query = f"""UPDATE Copy 
-                          SET isRented=0, Reader_idReader=NULL, dateRent=NULL, dateReturn=NULL
-                          WHERE idCopy={idCopy};"""
+                  SET isRented=0, Reader_idReader=NULL, dateRent='{datetime.now().strftime("%Y-%m-%d")}', dateReturn='{datetime.now().strftime("%Y-%m-%d")}'
+                  WHERE idCopy={idCopy};"""
             return executeQuery(self.connection, query)
         else:
             return False
